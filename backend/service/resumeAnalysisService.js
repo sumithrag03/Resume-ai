@@ -1,5 +1,5 @@
 import OpenAI from 'openai';
-import { PDFParse } from 'pdf-parse';
+import PDFParser from 'pdf2json';
 import {
   ApiError,
   calculateSkillMatch,
@@ -27,27 +27,40 @@ function getOpenAIClient() {
 }
 
 async function extractResumeText(buffer) {
-  const parser = new PDFParse({ data: buffer });
+  const parser = new PDFParser(null, 1);
 
   try {
-    const result = await parser.getText();
-    const text = result.text.trim();
+    const text = await new Promise((resolve, reject) => {
+      const onDataReady = () => resolve(parser.getRawTextContent());
+      const onDataError = (errorData) => reject(errorData.parserError);
 
-    if (!text) {
-      throw new ApiError(400, 'No readable text was found in the PDF. Please upload a text-based PDF.');
+      parser.once('pdfParser_dataReady', onDataReady);
+      parser.once('pdfParser_dataError', onDataError);
+
+      try {
+        parser.parseBuffer(buffer, 0);
+      } catch (error) {
+        reject(error);
+      }
+    });
+    const trimmedText = text.trim();
+
+    if (!trimmedText) {
+      throw new ApiError(
+        400,
+        'No readable text was found in the PDF. Scanned PDFs may require OCR; please upload a text-based PDF.',
+      );
     }
-    if (text.length > MAX_RESUME_TEXT_LENGTH) {
+    if (trimmedText.length > MAX_RESUME_TEXT_LENGTH) {
       throw new ApiError(400, 'The extracted resume text is too long to analyze. Please use a shorter PDF.');
     }
 
-    return text;
+    return trimmedText;
   } catch (error) {
     if (error instanceof ApiError) {
       throw error;
     }
     throw new ApiError(400, 'The PDF could not be read. Check that it is not damaged or password-protected.');
-  } finally {
-    await parser.destroy();
   }
 }
 

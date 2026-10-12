@@ -4,7 +4,7 @@ A React + Vite frontend and Express API for comparing resume skills with a job d
 
 ## Requirements
 
-- Node.js 20 or later
+- Node.js 20.18 or later
 - An OpenAI API key
 - MongoDB running locally or a MongoDB connection URI only if you use the legacy saved-submissions endpoint
 
@@ -18,7 +18,7 @@ if (-not (Test-Path backend\.env)) { Copy-Item backend\.env.example backend\.env
 
 If `backend/.env` already exists, keep it and confirm it has `OPENAI_API_KEY` set. `OPENAI_MODEL` defaults to `gpt-4o-mini`. Set `MONGODB_URI` to your local or hosted MongoDB URI if you use the legacy saved-submissions endpoint and database health check; the AI analysis endpoint itself does not require MongoDB.
 
-The AI endpoint accepts text-based PDFs up to 4 MB and job descriptions up to 20,000 characters. Resume text is extracted in memory and sent to OpenAI for analysis. The analysis endpoint does not log or store PDF contents. The legacy `POST /api/analyses` endpoint remains available and stores submission metadata and the job description in MongoDB, but does not store the uploaded PDF contents.
+The AI endpoint accepts PDFs up to 4 MB and job descriptions up to 20,000 characters. Resume text is extracted in memory and sent to OpenAI for analysis. Scanned/image-only PDFs may require OCR and are rejected when no readable text can be extracted. The analysis endpoint does not log or store PDF contents. The legacy `POST /api/analyses` endpoint remains available and stores submission metadata and the job description in MongoDB, but does not store the uploaded PDF contents.
 
 ## Run locally
 
