@@ -51,12 +51,14 @@ The score is calculated as **matching distinct required skills (case-insensitive
 
 ## Deploy to Vercel
 
-Create two Vercel projects from this repository:
+Create one Vercel project from the repository root. The root [vercel.json](./vercel.json) configures two services in the same deployment:
 
-- Set the frontend project's **Root Directory** to `frontend`.
-- Set the backend project's **Root Directory** to `backend`.
+- `backend` serves `/api/*`.
+- `frontend` serves all other paths.
 
-Each folder includes its own `vercel.json`. In the backend project's environment variables, set `OPENAI_API_KEY`, `OPENAI_MODEL` (optional), and `FRONTEND_ORIGIN` to the deployed frontend origin. Set `MONGODB_URI` if you need the legacy saved-submissions endpoint or database health check. In the frontend project's environment variables, set `VITE_API_URL` to the deployed backend origin (for example, `https://your-backend.vercel.app`, without a trailing slash). Redeploy after setting environment variables. The analysis upload is capped at 4 MB to fit within Vercel's function request-body limit; configure function duration in the Vercel project settings if analysis requests time out.
+Set `OPENAI_API_KEY` and optionally `OPENAI_MODEL` in the Vercel project environment. Set `MONGODB_URI` only if you need the legacy saved-submissions endpoint or database health check. Both services share the deployment origin, so the browser calls `/api/analyze` directly; no `VITE_API_URL` or internal service binding is needed. `FRONTEND_ORIGIN` only needs to be changed if you intentionally serve the frontend from a different origin. Redeploy after setting environment variables. The analysis upload is capped at 4 MB to fit within Vercel's function request-body limit; configure function duration in the Vercel project settings if analysis requests time out.
+
+Use `vercel dev` from the repository root to run the services together locally with Vercel's routing configuration. For ordinary local development, the existing `npm run dev:backend` and `npm run dev:frontend` commands remain available.
 
 ## Build
 
