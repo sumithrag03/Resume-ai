@@ -92,7 +92,7 @@ function AnalysisResults({ analysis, onAnalyzeAnother }) {
       <p className="analysis-disclaimer">
         Score formula: {analysis.scoreFormula}
         {analysis.scoreMessage && ` ${analysis.scoreMessage}`}
-        {' '}Resume text is sent to OpenAI to provide this analysis, but this analysis endpoint does not save the uploaded PDF.
+        {' '}Resume text is sent to Gemini to provide this analysis, but this analysis endpoint does not save the uploaded PDF.
       </p>
 
       <article className="suggestions-card">

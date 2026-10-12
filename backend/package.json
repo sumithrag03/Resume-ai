@@ -7,12 +7,12 @@
     "start": "node server.js"
   },
   "dependencies": {
+    "@google/genai": "^2.28.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "mongoose": "^8.9.5",
     "multer": "^2.0.2",
-    "openai": "^7.32.0",
     "pdf2json": "^3.2.2"
   }
 }
