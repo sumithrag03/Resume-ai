@@ -97,16 +97,75 @@ function parseModelResponse(content) {
   return result;
 }
 
-function getGeminiErrorDetails(error) {
+function redactProviderText(value, sensitiveValues) {
+  let safeText = value;
+  const sensitiveTokens = new Set();
+
+  for (const sensitiveValue of sensitiveValues) {
+    if (typeof sensitiveValue === 'string' && sensitiveValue.length > 0) {
+      safeText = safeText.split(sensitiveValue).join('[redacted]');
+      for (const token of sensitiveValue.match(/[\p{L}\p{N}_-]{3,}/gu) || []) {
+        sensitiveTokens.add(token.toLocaleLowerCase());
+      }
+    }
+  }
+
+  return safeText
+    .replace(/AIza[0-9A-Za-z_-]{20,}/g, '[redacted]')
+    .replace(/[\p{L}\p{N}_-]{3,}/gu, (token) => (
+      sensitiveTokens.has(token.toLocaleLowerCase()) ? '[redacted]' : token
+    ))
+    .slice(0, 1000);
+}
+
+function getGeminiErrorDetails(error, sensitiveValues) {
   try {
     const responseBody = JSON.parse(error.message);
     const providerError = responseBody.error;
+    const details = Array.isArray(providerError?.details)
+      ? providerError.details.map((detail) => ({
+        type: typeof detail['@type'] === 'string'
+          ? redactProviderText(detail['@type'], sensitiveValues)
+          : undefined,
+        fieldViolations: Array.isArray(detail.fieldViolations)
+          ? detail.fieldViolations.map((violation) => ({
+            field: typeof violation.field === 'string'
+              ? redactProviderText(violation.field, sensitiveValues)
+              : undefined,
+            description: typeof violation.description === 'string'
+              ? redactProviderText(violation.description, sensitiveValues)
+              : undefined,
+          }))
+          : undefined,
+        reason: typeof detail.reason === 'string'
+          ? redactProviderText(detail.reason, sensitiveValues)
+          : undefined,
+        domain: typeof detail.domain === 'string'
+          ? redactProviderText(detail.domain, sensitiveValues)
+          : undefined,
+        metadata: detail.metadata && typeof detail.metadata === 'object'
+          ? Object.fromEntries(
+            Object.entries(detail.metadata)
+              .filter(([key, value]) => /field|reason|service|consumer|quota|model/i.test(key)
+                && typeof value === 'string')
+              .map(([key, value]) => [
+                redactProviderText(key, sensitiveValues),
+                redactProviderText(value, sensitiveValues),
+              ]),
+          )
+          : undefined,
+      }))
+      : undefined;
 
     return {
+      providerMessage: typeof providerError?.message === 'string'
+        ? redactProviderText(providerError.message, sensitiveValues)
+        : undefined,
       providerStatus: typeof providerError?.status === 'string' ? providerError.status : undefined,
       providerCode: typeof providerError?.code === 'number' || typeof providerError?.code === 'string'
         ? providerError.code
         : undefined,
+      providerDetails: details,
     };
   } catch {
     return {};
@@ -118,7 +177,7 @@ async function requestAnalysis(resumeText, jobDescription) {
 
   try {
     const response = await client.models.generateContent({
-      model: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+      model: process.env.GEMINI_MODEL || 'gemini-3.8-flash',
       contents: `Resume text:\n${resumeText}\n\nJob description:\n${jobDescription}`,
       config: {
         systemInstruction: [
@@ -142,14 +201,22 @@ async function requestAnalysis(resumeText, jobDescription) {
       throw error;
     }
     if (error instanceof GeminiApiError) {
-      const { providerStatus, providerCode } = getGeminiErrorDetails(error);
+      const { providerMessage, providerStatus, providerCode, providerDetails } = getGeminiErrorDetails(
+        error,
+        [process.env.GEMINI_API_KEY, resumeText, jobDescription],
+      );
       console.error('Gemini API request failed:', JSON.stringify({
         httpStatus: error.status,
+        providerMessage,
         providerStatus,
         providerCode,
+        providerDetails,
       }));
 
-      if (error.status === 401 || (error.status === 400 && /api.?key/i.test(error.message))) {
+      if (
+        error.status === 401
+        || (error.status === 400 && /api.?key|key (?:is )?not valid/i.test(providerMessage || ''))
+      ) {
         throw new ApiError(503, 'Gemini rejected the API key. Verify GEMINI_API_KEY in the deployed backend environment.');
       }
       if (error.status === 403) {
@@ -160,6 +227,12 @@ async function requestAnalysis(resumeText, jobDescription) {
       }
       if (error.status === 404) {
         throw new ApiError(502, 'The configured Gemini model was not found. Check GEMINI_MODEL.');
+      }
+      if (
+        error.status === 400
+        && /model|not available to new users|not supported/i.test(providerMessage || '')
+      ) {
+        throw new ApiError(502, 'The configured Gemini model is not available to this API key. Check GEMINI_MODEL.');
       }
       if (error.status === 429) {
         throw new ApiError(503, providerStatus === 'RESOURCE_EXHAUSTED'
@@ -172,7 +245,10 @@ async function requestAnalysis(resumeText, jobDescription) {
       if (error.status >= 500) {
         throw new ApiError(502, 'Gemini is temporarily unavailable. Please try again later.');
       }
-      throw new ApiError(502, 'Gemini rejected the analysis request. Check the model and backend configuration.');
+      throw new ApiError(
+        502,
+        'Gemini rejected the analysis request. Check the JSON output configuration and backend request settings.',
+      );
     }
     if (
       (error instanceof Error && (error.name === 'TimeoutError' || error.name === 'AbortError'))
