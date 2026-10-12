@@ -493,3 +493,37 @@ The application should take resume PDF and a JD for comparison, AI part will be 
 lets clean unwanted code 
 backend folder should container server.js, routes folder, controller folder, service folder, config folder, middleware folder and utils.js
 add vercel.json file to backend and frondend folder i am created two project in vercel for deployment
+I have added my OpenAI API key to the backend `.env` file in my existing 0 to Shipped Resume Parser project.
+
+Please inspect my existing React + Vite frontend and Node.js + Express backend before making changes.
+
+Implement real AI-powered resume analysis using the official OpenAI JavaScript SDK.
+
+Requirements:
+
+1. Install and configure the OpenAI SDK in the existing backend.
+2. Read `OPENAI_API_KEY` securely from the backend `.env` file.
+3. Use the existing backend entry point, routes, and project structure wherever possible.
+4. Accept a PDF resume and a job description through a POST `/api/analyze` endpoint.
+5. Validate the uploaded PDF and extract its actual text using a suitable PDF parsing library.
+6. Send the extracted resume text and job description to the OpenAI API from the backend.
+7. Return structured JSON containing:
+   - Resume match score out of 100
+   - Skills found in the resume
+   - Skills required by the job description
+   - Matching skills
+   - Missing skills
+   - Improvement recommendations
+8. Calculate the match score using a documented, consistent scoring formula based on recognized job requirements.
+9. Update the existing React frontend to submit the PDF and job description using `FormData`.
+10. Display the real analysis results, loading state, and meaningful error messages.
+11. Keep the OpenAI API key out of frontend code and never expose it in browser requests.
+12. Do not log or permanently store uploaded resume contents.
+13. Do not add an ATS score.
+14. Preserve my existing UI design and deployment configuration.
+15. Do not overwrite existing functionality or create duplicate routes.
+16. Check CORS, environment variables, file validation, and deployment requirements.
+17. Update `.env.example` with placeholder values only and ensure `.env` is ignored by Git.
+18. Provide the exact commands to install dependencies and run the frontend and backend locally.
+
+After implementation, explain which files you changed and how I can test the complete application.
