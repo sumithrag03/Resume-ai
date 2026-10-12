@@ -302,6 +302,15 @@ h1, h2, h3 { font-family: Manrope, sans-serif; }
 .summary-label { align-self: end; color: #788398; font-size: 11px; font-weight: 600; }
 .summary-card strong { align-self: start; font-family: Manrope, sans-serif; font-size: 22px; font-weight: 800; line-height: 1.2; }
 .summary-card strong span { margin-left: 2px; color: #929caf; font-size: 12px; font-weight: 600; }
+.submission-summary .summary-card { min-width: 0; }
+.summary-card strong.submission-value { overflow: hidden; max-width: 100%; font-size: 14px; text-overflow: ellipsis; white-space: nowrap; }
+.submission-details { margin-top: 17px; padding: 20px 22px; }
+.submission-details h3 { margin: 0 0 13px; font-size: 15px; }
+.submission-details dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 0; }
+.submission-details dl > div { min-width: 0; }
+.submission-details dt { margin-bottom: 4px; color: #828da0; font-size: 10px; font-weight: 600; }
+.submission-details dd { overflow-wrap: anywhere; margin: 0; color: #34415a; font-size: 11px; font-weight: 700; }
+.submission-details > p { margin: 14px 0 0; color: #828da0; font-size: 10px; }
 .result-detail-grid { display: grid; grid-template-columns: 0.78fr 1.55fr; gap: 17px; }
 .score-card, .content-card, .suggestions-card { border: 1px solid #e9ecf2; border-radius: 16px; background: white; box-shadow: 0 6px 23px rgba(36, 51, 88, 0.04); }
 .score-card { position: relative; display: flex; min-height: 253px; flex-direction: column; align-items: center; justify-content: center; padding: 22px 16px 34px; text-align: center; }
@@ -435,6 +444,7 @@ h1, h2, h3 { font-family: Manrope, sans-serif; }
   .summary-label { align-self: end; font-size: 9px; }
   .summary-card strong { font-size: 19px; }
   .summary-card strong span { font-size: 10px; }
+  .summary-card strong.submission-value { font-size: 12px; }
   .result-detail-grid { grid-template-columns: 1fr; gap: 12px; }
   .score-card { min-height: 230px; }
   .skills-grid { grid-template-rows: auto auto; gap: 12px; }
@@ -444,6 +454,8 @@ h1, h2, h3 { font-family: Manrope, sans-serif; }
   .job-summary-stat { flex: 1; }
   .job-summary-stat span { max-width: 90px; }
   .no-skills-message { grid-column: auto; }
+  .submission-details { padding: 16px; }
+  .submission-details dl { grid-template-columns: 1fr; gap: 9px; }
   .analysis-disclaimer { font-size: 9px; }
   .suggestions-card { margin-top: 12px; padding: 17px 15px; }
   .suggestions-list { grid-template-columns: 1fr; gap: 11px; margin-top: 15px; }

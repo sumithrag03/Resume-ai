@@ -34,7 +34,7 @@ function Navbar({ onAnalyzeClick }) {
         <div className={`nav-links${menuOpen ? ' is-open' : ''}`}>
           <a href="#how-it-works" onClick={handleHowItWorks}>How It Works</a>
           <button className="button button-primary nav-cta" type="button" onClick={handleAnalyze}>
-            Analyze Resume <ArrowUpRight size={16} aria-hidden="true" />
+            Prepare Comparison <ArrowUpRight size={16} aria-hidden="true" />
           </button>
         </div>
       </nav>

@@ -106,9 +106,9 @@ function ResumeUploader({ file, error, isAnalyzing, canAnalyze, hasJobDescriptio
           onClick={onAnalyze}
         >
           {isAnalyzing ? (
-            <><LoaderCircle className="spin" size={18} /> Preparing your demo results...</>
+            <><LoaderCircle className="spin" size={18} /> Saving your request...</>
           ) : (
-            <>Analyze Resume <ArrowUpRight size={18} aria-hidden="true" /></>
+            <>Save Comparison Request <ArrowUpRight size={18} aria-hidden="true" /></>
           )}
         </button>
         {!canAnalyze && (
@@ -117,7 +117,7 @@ function ResumeUploader({ file, error, isAnalyzing, canAnalyze, hasJobDescriptio
             {!hasJobDescription && <li>Paste a job description to continue.</li>}
           </ul>
         )}
-        <p className="demo-notice">Your resume is not analyzed. This demo uses sample results.</p>
+        <p className="demo-notice">Your PDF and job description will be stored in MongoDB. No AI analysis runs yet.</p>
       </div>
     </div>
   );

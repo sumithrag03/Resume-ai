@@ -9,14 +9,14 @@ const steps = [
   },
   {
     number: '02',
-    title: 'Explore Your Results',
-    description: 'Preview a sample resume score and example skills.',
+    title: 'Add a Job Description',
+    description: 'Paste the role details you want to compare against your resume.',
     icon: ScanSearch,
   },
   {
     number: '03',
-    title: 'Improve Your Profile',
-    description: 'Explore general suggestions to strengthen your resume.',
+    title: 'Save Your Request',
+    description: 'The PDF and job description are stored for future AI processing.',
     icon: Lightbulb,
   },
 ];

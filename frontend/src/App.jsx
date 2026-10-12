@@ -34,6 +34,7 @@ function App() {
 
   const handleJobDescriptionChange = (value) => {
     setJobDescription(value);
+    setError('');
     setAnalysis(null);
   };
 
@@ -42,10 +43,44 @@ function App() {
 
     setIsAnalyzing(true);
     setError('');
-    await new Promise((resolve) => window.setTimeout(resolve, 1500));
-    const result = createDemoAnalysis(jobDescription);
-    setIsAnalyzing(false);
-    setAnalysis(result);
+    try {
+      const formData = new FormData();
+      formData.append('resume', selectedFile);
+      formData.append('jobDescription', jobDescription);
+
+      let response;
+      try {
+        response = await fetch('/api/analyses', {
+          method: 'POST',
+          body: formData,
+        });
+      } catch {
+        throw new Error('Unable to reach the backend. Start the Express server and confirm MongoDB is connected.');
+      }
+
+      let payload;
+      try {
+        payload = await response.json();
+      } catch {
+        throw new Error('The backend returned an invalid response. Check that the Express server is running.');
+      }
+
+      if (!response.ok) {
+        throw new Error(payload.error || 'The server could not save this comparison.');
+      }
+
+      if (!payload.analysis?.id || payload.analysis.status !== 'pending') {
+        throw new Error('The server returned an unexpected response. Please try again.');
+      }
+
+      setAnalysis(payload.analysis);
+    } catch (requestError) {
+      setError(requestError instanceof Error
+        ? requestError.message
+        : 'Could not reach the server. Check that the backend is running and try again.');
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   const handleAnalyzeAnother = () => {
@@ -63,7 +98,7 @@ function App() {
           <div className="section-heading">
             <span className="eyebrow">START WITH A PDF</span>
             <h2>A clearer picture starts here.</h2>
-            <p>Your file stays in this demo. Nothing is uploaded to a server.</p>
+            <p>When submitted, your PDF and job description are saved to MongoDB. AI comparison will be added later.</p>
           </div>
           <ResumeUploader
             file={selectedFile}
@@ -100,40 +135,3 @@ function App() {
 }
 
 export default App;
-
-const SAMPLE_RESUME_SKILLS = ['HTML', 'CSS', 'JavaScript', 'Python', 'SQL', 'Git', 'Responsive Design'];
-const RECOGNIZED_SKILLS = [
-  { name: 'HTML', keywords: ['html'] },
-  { name: 'CSS', keywords: ['css'] },
-  { name: 'JavaScript', keywords: ['javascript', 'js'] },
-  { name: 'Python', keywords: ['python'] },
-  { name: 'SQL', keywords: ['sql'] },
-  { name: 'Git', keywords: ['git'] },
-  { name: 'Responsive Design', keywords: ['responsive design'] },
-  { name: 'React', keywords: ['react'] },
-  { name: 'TypeScript', keywords: ['typescript'] },
-  { name: 'REST APIs', keywords: ['rest api', 'rest apis'] },
-  { name: 'Automated Testing', keywords: ['automated testing', 'test automation', 'testing'] },
-];
-
-function createDemoAnalysis(jobDescriptionText) {
-  const normalizedDescription = jobDescriptionText.toLowerCase();
-  const detectedSkills = RECOGNIZED_SKILLS.filter(({ keywords }) =>
-    keywords.some((keyword) => {
-      const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      return new RegExp(`\\b${escapedKeyword}\\b`, 'i').test(normalizedDescription);
-    }),
-  ).map(({ name }) => name);
-
-  const matchingSkills = detectedSkills.filter((skill) => SAMPLE_RESUME_SKILLS.includes(skill));
-  const missingSkills = detectedSkills.filter((skill) => !SAMPLE_RESUME_SKILLS.includes(skill));
-
-  return {
-    requiredSkills: detectedSkills,
-    matchingSkills,
-    missingSkills,
-    score: detectedSkills.length
-      ? Math.round((matchingSkills.length / detectedSkills.length) * 100)
-      : null,
-  };
-}
