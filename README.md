@@ -58,6 +58,8 @@ Use the existing Vercel project connected to this repository. Set its **Root Dir
 
 Set `GEMINI_API_KEY` and optionally `GEMINI_MODEL` in the existing Vercel project's environment variables. `FRONTEND_ORIGIN` is optional; set it only if the browser frontend calls the backend from a different origin. Set `MONGODB_URI` only if you need the legacy saved-submissions endpoint or database health check. Both services share the deployment origin, so the browser calls `/api/analyze` directly; no `VITE_API_URL` or internal service binding is needed. Redeploy the existing project after changing its Root Directory or environment variables. The analysis upload is capped at 4 MB to fit within Vercel's function request-body limit; configure function duration in the Vercel project settings if analysis requests time out.
 
+If Gemini analysis fails in production, check the Vercel backend function logs. The backend logs Gemini's HTTP status and provider error code/status only; it does not log the API key, resume text, or job description. HTTP 401 indicates the key was rejected, HTTP 403 indicates the key or project lacks access, HTTP 404 indicates the configured model was not found, and HTTP 429 indicates quota exhaustion or rate limiting. Confirm `GEMINI_API_KEY` is configured for the deployment environment and that any key restrictions allow the Gemini API.
+
 Use `vercel dev` from the repository root to run the services together locally with Vercel's routing configuration. For ordinary local development, the existing `npm run dev:backend` and `npm run dev:frontend` commands remain available.
 
 ## Build

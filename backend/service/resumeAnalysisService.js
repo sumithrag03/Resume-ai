@@ -97,6 +97,22 @@ function parseModelResponse(content) {
   return result;
 }
 
+function getGeminiErrorDetails(error) {
+  try {
+    const responseBody = JSON.parse(error.message);
+    const providerError = responseBody.error;
+
+    return {
+      providerStatus: typeof providerError?.status === 'string' ? providerError.status : undefined,
+      providerCode: typeof providerError?.code === 'number' || typeof providerError?.code === 'string'
+        ? providerError.code
+        : undefined,
+    };
+  } catch {
+    return {};
+  }
+}
+
 async function requestAnalysis(resumeText, jobDescription) {
   const client = getGeminiClient();
 
@@ -125,26 +141,43 @@ async function requestAnalysis(resumeText, jobDescription) {
     if (error instanceof ApiError) {
       throw error;
     }
+    if (error instanceof GeminiApiError) {
+      const { providerStatus, providerCode } = getGeminiErrorDetails(error);
+      console.error('Gemini API request failed:', JSON.stringify({
+        httpStatus: error.status,
+        providerStatus,
+        providerCode,
+      }));
+
+      if (error.status === 401 || (error.status === 400 && /api.?key/i.test(error.message))) {
+        throw new ApiError(503, 'Gemini rejected the API key. Verify GEMINI_API_KEY in the deployed backend environment.');
+      }
+      if (error.status === 403) {
+        throw new ApiError(
+          503,
+          'Gemini denied access. Check the API key restrictions and Gemini API access for its Google project.',
+        );
+      }
+      if (error.status === 404) {
+        throw new ApiError(502, 'The configured Gemini model was not found. Check GEMINI_MODEL.');
+      }
+      if (error.status === 429) {
+        throw new ApiError(503, providerStatus === 'RESOURCE_EXHAUSTED'
+          ? 'Gemini quota is exhausted. Check the project quota or try again later.'
+          : 'Gemini is rate-limiting requests. Please try again shortly.');
+      }
+      if (error.status === 408 || error.status === 504) {
+        throw new ApiError(504, 'Resume analysis timed out. Please try again.');
+      }
+      if (error.status >= 500) {
+        throw new ApiError(502, 'Gemini is temporarily unavailable. Please try again later.');
+      }
+      throw new ApiError(502, 'Gemini rejected the analysis request. Check the model and backend configuration.');
+    }
     if (
       (error instanceof Error && (error.name === 'TimeoutError' || error.name === 'AbortError'))
-      || (error instanceof GeminiApiError && (error.status === 408 || error.status === 504))
     ) {
       throw new ApiError(504, 'Resume analysis timed out. Please try again.');
-    }
-    if (
-      error instanceof GeminiApiError
-      && (error.status === 401 || error.status === 403)
-    ) {
-      throw new ApiError(503, 'AI analysis is not available. Check the backend Gemini API key.');
-    }
-    if (
-      error instanceof GeminiApiError
-      && (error.status === 400 && /api.?key/i.test(error.message))
-    ) {
-      throw new ApiError(503, 'AI analysis is not available. Check the backend Gemini API key.');
-    }
-    if (error instanceof GeminiApiError && error.status === 429) {
-      throw new ApiError(503, 'Gemini quota is temporarily exhausted. Please try again later.');
     }
     throw new ApiError(502, 'The AI service is temporarily unavailable. Please try again.');
   }
