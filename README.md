@@ -51,12 +51,12 @@ The score is calculated as **matching distinct required skills (case-insensitive
 
 ## Deploy to Vercel
 
-Create one Vercel project from the repository root. The root [vercel.json](./vercel.json) configures two services in the same deployment:
+Use the existing Vercel project connected to this repository. Set its **Root Directory** to the repository root (`.`), not `frontend` or `backend`. The root [vercel.json](./vercel.json) configures two services in the same deployment:
 
 - `backend` serves `/api/*`.
 - `frontend` serves all other paths.
 
-Set `OPENAI_API_KEY` and optionally `OPENAI_MODEL` in the Vercel project environment. Set `MONGODB_URI` only if you need the legacy saved-submissions endpoint or database health check. Both services share the deployment origin, so the browser calls `/api/analyze` directly; no `VITE_API_URL` or internal service binding is needed. `FRONTEND_ORIGIN` only needs to be changed if you intentionally serve the frontend from a different origin. Redeploy after setting environment variables. The analysis upload is capped at 4 MB to fit within Vercel's function request-body limit; configure function duration in the Vercel project settings if analysis requests time out.
+Set `OPENAI_API_KEY` and optionally `OPENAI_MODEL` in the existing Vercel project's environment variables. `FRONTEND_ORIGIN` is optional; set it only if the browser frontend calls the backend from a different origin. Set `MONGODB_URI` only if you need the legacy saved-submissions endpoint or database health check. Both services share the deployment origin, so the browser calls `/api/analyze` directly; no `VITE_API_URL` or internal service binding is needed. Redeploy the existing project after changing its Root Directory or environment variables. The analysis upload is capped at 4 MB to fit within Vercel's function request-body limit; configure function duration in the Vercel project settings if analysis requests time out.
 
 Use `vercel dev` from the repository root to run the services together locally with Vercel's routing configuration. For ordinary local development, the existing `npm run dev:backend` and `npm run dev:frontend` commands remain available.
 

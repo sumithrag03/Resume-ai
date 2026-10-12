@@ -60,9 +60,13 @@ function App() {
 
       let payload;
       try {
-        payload = await response.json();
+        const responseText = await response.text();
+        payload = JSON.parse(responseText);
       } catch {
-        throw new Error('The backend returned an invalid response. Check that the Express server is running.');
+        throw new Error(
+          `The backend returned a non-JSON response (HTTP ${response.status}). `
+          + 'Confirm the Vercel project Root Directory is the repository root, then redeploy.',
+        );
       }
 
       if (!response.ok) {
