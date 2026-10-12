@@ -7,6 +7,8 @@ import AnalysisResults from './components/AnalysisResults.jsx';
 import HowItWorks from './components/HowItWorks.jsx';
 import Footer from './components/Footer.jsx';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+
 function App() {
   const uploadRef = useRef(null);
   const resultsRef = useRef(null);
@@ -50,7 +52,7 @@ function App() {
 
       let response;
       try {
-        response = await fetch('/api/analyses', {
+        response = await fetch(`${API_BASE_URL}/api/analyses`, {
           method: 'POST',
           body: formData,
         });

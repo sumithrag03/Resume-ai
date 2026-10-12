@@ -35,6 +35,15 @@ Open the Vite URL, select a PDF, enter a job description, then choose **Analyze 
 
 The Vite development server proxies `/api` requests to `http://localhost:5000`. Set `FRONTEND_ORIGIN` in `backend/.env` if the frontend runs on a different origin.
 
+## Deploy to Vercel
+
+Create two Vercel projects from this repository:
+
+- Set the frontend project's **Root Directory** to `frontend`.
+- Set the backend project's **Root Directory** to `backend`.
+
+Each folder includes its own `vercel.json`. In the backend project's environment variables, set `MONGODB_URI` and `FRONTEND_ORIGIN` to your MongoDB connection string and deployed frontend origin. In the frontend project's environment variables, set `VITE_API_URL` to the deployed backend origin (for example, `https://your-backend.vercel.app`, without a trailing slash). Redeploy after setting environment variables.
+
 ## Build
 
 ```bash

@@ -492,3 +492,4 @@ I want you to move this react project into frontend folder and build a backend f
 The application should take resume PDF and a JD for comparison, AI part will be added later
 lets clean unwanted code 
 backend folder should container server.js, routes folder, controller folder, service folder, config folder, middleware folder and utils.js
+add vercel.json file to backend and frondend folder i am created two project in vercel for deployment
