@@ -364,3 +364,125 @@ The final application must include:
 Generate all required files with complete working code. Do not provide incomplete snippets, pseudocode, or placeholders for the required functionality.
 
 After generating the code, explain how to install dependencies and run the project locally in VS Code.
+
+## New Feature: Job Description Input and Resume Matching
+
+Update my existing React + Vite project, **0 to Shipped – Resume Parser**, to include a Job Description input feature.
+
+Keep the existing design, components, and styling consistent. Do not rebuild the entire project from scratch.
+
+### 1. Job Description Section
+
+Add a section titled **"Compare Your Resume With a Job Description"** below the resume PDF uploader.
+
+Include:
+
+- A large textarea where users can paste a job description.
+- Placeholder text: "Paste the job description here, including required skills, qualifications, and responsibilities..."
+- A character counter.
+- A clear button to remove the pasted text.
+- An optional sample job description button for testing.
+- A label: "Job Description".
+
+### 2. Analyze Button
+
+The user must provide both:
+- A valid PDF resume under 10 MB.
+- A non-empty job description.
+
+Enable the **Analyze Resume** button only when both inputs are valid.
+
+Show friendly validation messages if either input is missing.
+
+### 3. Resume Analysis Results
+
+After clicking Analyze Resume, display a loading animation and then show clearly labeled mock results.
+
+**A. Resume Score**
+- Show an illustrative score out of 100.
+- Example: 78/100.
+- Display a progress ring and a short status label.
+
+**B. Matching Skills**
+
+Display skills that match between the sample resume results and the job description.
+
+Example:
+- HTML
+- CSS
+- JavaScript
+- SQL
+
+**C. Missing Skills**
+
+Display example skills that appear in the job description but are not present in the sample resume results.
+
+Example:
+- React
+- TypeScript
+- REST APIs
+- Automated Testing
+
+**D. Job Description Summary**
+
+Display:
+- Total example required skills.
+- Matching skills count.
+- Missing skills count.
+
+**E. Improvement Suggestions**
+
+Show general suggestions based on the example skill gaps, such as:
+- Add relevant skills to your resume when you genuinely possess them.
+- Highlight projects that demonstrate the job's requirements.
+- Include measurable achievements.
+- Use clear, standard section headings.
+
+Do not recommend adding skills the candidate does not actually have.
+
+### 4. Mock Analysis Logic
+
+This is a frontend-only demonstration.
+
+- Do not build a backend, database, or external AI integration.
+- Do not claim to extract actual text or skills from the uploaded PDF.
+- Treat the uploaded PDF as a file-selection input only.
+- Use a predefined list of sample resume skills.
+- Extract relevant keywords from the pasted job description using simple JavaScript keyword matching.
+- Compare the detected job-description keywords with the predefined sample resume skills.
+- Calculate a demonstration match score from the matching and missing skill counts.
+- Clearly label all results as "Demo Analysis — Sample Resume Data".
+- Display a note explaining that the uploaded PDF's actual contents are not analyzed.
+
+Use a deterministic scoring formula for the demo. For example:
+
+Match Score = (Matching Skills / Total Recognized Job Skills) × 100
+
+Round the result to the nearest whole number. If no recognized skills are found, show a helpful message instead of dividing by zero.
+
+Use keyword matching only for recognized skills. Do not pretend that simple keyword matching evaluates the entire resume or predicts an employer's ATS decision.
+
+### 5. User Experience
+
+- Make the textarea responsive.
+- Preserve the existing premium SaaS design.
+- Display the results below the input section.
+- Add an "Analyze Another Job" button that resets the job description and results.
+- Allow the user to change the job description and analyze again.
+- Ensure the page works on desktop, tablet, and mobile.
+
+### 6. React Implementation
+
+Update the relevant existing files, especially:
+- `src/components/ResumeUploader.jsx`
+- `src/components/AnalysisResults.jsx`
+- `src/App.jsx`
+- `src/index.css`
+
+Create an additional component such as `JobDescriptionInput.jsx` if appropriate.
+
+Use React state and reusable components. Keep HTML, CSS, and JavaScript within the existing React + Vite architecture.
+
+Do not add an ATS score or ATS compatibility section.
+
+Implement the complete feature with working interactions and explain how to test it locally.

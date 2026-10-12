@@ -9,12 +9,12 @@ function formatFileSize(size) {
   return `${(size / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function ResumeUploader({ file, error, isAnalyzing, onFileChange, onError, onRemove, onAnalyze }) {
+function ResumeUploader({ file, error, isAnalyzing, canAnalyze, hasJobDescription, onFileChange, onError, onRemove, onAnalyze }) {
   const inputRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
 
   const validateAndSelect = (candidate) => {
-    if (!candidate) return;
+    if (!candidate || isAnalyzing) return;
 
     const hasPdfExtension = /\.pdf$/i.test(candidate.name);
     if (!hasPdfExtension || candidate.type !== 'application/pdf') {
@@ -71,6 +71,7 @@ function ResumeUploader({ file, error, isAnalyzing, onFileChange, onError, onRem
               className="icon-button remove-file"
               type="button"
               aria-label="Remove selected file"
+              disabled={isAnalyzing}
               onClick={onRemove}
             >
               <X size={17} />
@@ -90,7 +91,7 @@ function ResumeUploader({ file, error, isAnalyzing, onFileChange, onError, onRem
         {file && (
           <div className="replace-file">
             <span>Want to use a different file?</span>
-            <button type="button" onClick={() => inputRef.current?.click()}>Choose another PDF</button>
+            <button type="button" disabled={isAnalyzing} onClick={() => inputRef.current?.click()}>Choose another PDF</button>
           </div>
         )}
       </div>
@@ -101,7 +102,7 @@ function ResumeUploader({ file, error, isAnalyzing, onFileChange, onError, onRem
         <button
           className="button button-primary button-large analyze-button"
           type="button"
-          disabled={!file || isAnalyzing}
+          disabled={!canAnalyze || isAnalyzing}
           onClick={onAnalyze}
         >
           {isAnalyzing ? (
@@ -110,6 +111,12 @@ function ResumeUploader({ file, error, isAnalyzing, onFileChange, onError, onRem
             <>Analyze Resume <ArrowUpRight size={18} aria-hidden="true" /></>
           )}
         </button>
+        {!canAnalyze && (
+          <ul className="analysis-requirements" aria-live="polite">
+            {!file && <li>A valid PDF resume under 10 MB is required.</li>}
+            {!hasJobDescription && <li>Paste a job description to continue.</li>}
+          </ul>
+        )}
         <p className="demo-notice">Your resume is not analyzed. This demo uses sample results.</p>
       </div>
     </div>

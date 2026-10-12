@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import Navbar from './components/Navbar.jsx';
 import Hero from './components/Hero.jsx';
 import ResumeUploader from './components/ResumeUploader.jsx';
+import JobDescriptionInput from './components/JobDescriptionInput.jsx';
 import AnalysisResults from './components/AnalysisResults.jsx';
 import HowItWorks from './components/HowItWorks.jsx';
 import Footer from './components/Footer.jsx';
@@ -12,39 +13,44 @@ function App() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [error, setError] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [hasResults, setHasResults] = useState(false);
+  const [jobDescription, setJobDescription] = useState('');
+  const [analysis, setAnalysis] = useState(null);
 
   const scrollToUpload = () => {
     uploadRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   useEffect(() => {
-    if (hasResults) {
+    if (analysis) {
       resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-  }, [hasResults]);
+  }, [analysis]);
 
   const handleFileChange = (file) => {
     setSelectedFile(file);
     setError('');
-    setHasResults(false);
+    setAnalysis(null);
+  };
+
+  const handleJobDescriptionChange = (value) => {
+    setJobDescription(value);
+    setAnalysis(null);
   };
 
   const handleAnalyze = async () => {
-    if (!selectedFile || isAnalyzing) return;
+    if (!selectedFile || !jobDescription.trim() || isAnalyzing) return;
 
     setIsAnalyzing(true);
     setError('');
     await new Promise((resolve) => window.setTimeout(resolve, 1500));
+    const result = createDemoAnalysis(jobDescription);
     setIsAnalyzing(false);
-    setHasResults(true);
+    setAnalysis(result);
   };
 
-  const handleReset = () => {
-    setSelectedFile(null);
-    setError('');
-    setIsAnalyzing(false);
-    setHasResults(false);
+  const handleAnalyzeAnother = () => {
+    setJobDescription('');
+    setAnalysis(null);
     scrollToUpload();
   };
 
@@ -66,16 +72,24 @@ function App() {
             onFileChange={handleFileChange}
             onError={setError}
             onRemove={() => {
+              if (isAnalyzing) return;
               setSelectedFile(null);
               setError('');
-              setHasResults(false);
+              setAnalysis(null);
             }}
+            canAnalyze={Boolean(selectedFile && jobDescription.trim())}
+            hasJobDescription={Boolean(jobDescription.trim())}
             onAnalyze={handleAnalyze}
           />
+          <JobDescriptionInput
+            value={jobDescription}
+            disabled={isAnalyzing}
+            onChange={handleJobDescriptionChange}
+          />
         </section>
-        {hasResults && (
+        {analysis && (
           <div ref={resultsRef}>
-            <AnalysisResults onAnalyzeAnother={handleReset} />
+            <AnalysisResults analysis={analysis} onAnalyzeAnother={handleAnalyzeAnother} />
           </div>
         )}
         <HowItWorks />
@@ -86,3 +100,40 @@ function App() {
 }
 
 export default App;
+
+const SAMPLE_RESUME_SKILLS = ['HTML', 'CSS', 'JavaScript', 'Python', 'SQL', 'Git', 'Responsive Design'];
+const RECOGNIZED_SKILLS = [
+  { name: 'HTML', keywords: ['html'] },
+  { name: 'CSS', keywords: ['css'] },
+  { name: 'JavaScript', keywords: ['javascript', 'js'] },
+  { name: 'Python', keywords: ['python'] },
+  { name: 'SQL', keywords: ['sql'] },
+  { name: 'Git', keywords: ['git'] },
+  { name: 'Responsive Design', keywords: ['responsive design'] },
+  { name: 'React', keywords: ['react'] },
+  { name: 'TypeScript', keywords: ['typescript'] },
+  { name: 'REST APIs', keywords: ['rest api', 'rest apis'] },
+  { name: 'Automated Testing', keywords: ['automated testing', 'test automation', 'testing'] },
+];
+
+function createDemoAnalysis(jobDescriptionText) {
+  const normalizedDescription = jobDescriptionText.toLowerCase();
+  const detectedSkills = RECOGNIZED_SKILLS.filter(({ keywords }) =>
+    keywords.some((keyword) => {
+      const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      return new RegExp(`\\b${escapedKeyword}\\b`, 'i').test(normalizedDescription);
+    }),
+  ).map(({ name }) => name);
+
+  const matchingSkills = detectedSkills.filter((skill) => SAMPLE_RESUME_SKILLS.includes(skill));
+  const missingSkills = detectedSkills.filter((skill) => !SAMPLE_RESUME_SKILLS.includes(skill));
+
+  return {
+    requiredSkills: detectedSkills,
+    matchingSkills,
+    missingSkills,
+    score: detectedSkills.length
+      ? Math.round((matchingSkills.length / detectedSkills.length) * 100)
+      : null,
+  };
+}
