@@ -1,30 +1,7 @@
-import { Router } from 'express';
-import multer from 'multer';
-import Analysis from '../models/Analysis.js';
+import { saveAnalysis } from '../service/analysesService.js';
+import { MAX_JOB_DESCRIPTION_LENGTH } from '../utils.js';
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024;
-const MAX_JOB_DESCRIPTION_LENGTH = 20_000;
-
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: {
-    fileSize: MAX_FILE_SIZE,
-    files: 1,
-    fields: 1,
-    fieldSize: MAX_JOB_DESCRIPTION_LENGTH * 4,
-  },
-  fileFilter: (request, file, callback) => {
-    if (!/\.pdf$/i.test(file.originalname) || file.mimetype !== 'application/pdf') {
-      callback(new Error('Please upload a PDF resume.'));
-      return;
-    }
-    callback(null, true);
-  },
-});
-
-const router = Router();
-
-router.post('/', upload.single('resume'), async (request, response, next) => {
+export async function createAnalysis(request, response, next) {
   try {
     const resume = request.file;
     const jobDescription = request.body.jobDescription;
@@ -51,13 +28,7 @@ router.post('/', upload.single('resume'), async (request, response, next) => {
       return;
     }
 
-    const storedAnalysis = await Analysis.create({
-      jobDescription: jobDescription.trim(),
-      resumeFileName: resume.originalname.replace(/[\\/]/g, '_').slice(0, 255),
-      resumeContentType: 'application/pdf',
-      resumeSize: resume.size,
-      resumeData: resume.buffer,
-    });
+    const storedAnalysis = await saveAnalysis(resume, jobDescription);
 
     response.status(201).json({
       analysis: {
@@ -72,6 +43,4 @@ router.post('/', upload.single('resume'), async (request, response, next) => {
   } catch (error) {
     next(error);
   }
-});
-
-export default router;
+}

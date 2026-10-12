@@ -1,7 +1,5 @@
 import mongoose from 'mongoose';
-
-const MAX_FILE_SIZE = 10 * 1024 * 1024;
-const MAX_JOB_DESCRIPTION_LENGTH = 20_000;
+import { MAX_FILE_SIZE, MAX_JOB_DESCRIPTION_LENGTH } from '../utils.js';
 
 const analysisSchema = new mongoose.Schema(
   {

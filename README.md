@@ -51,9 +51,14 @@ frontend/
   package.json
   vite.config.js
 backend/
-  src/
-    models/
-    routes/
+  config/
+  controllers/
+  middleware/
+  models/
+  routes/
+  service/
+  server.js
+  utils.js
   .env.example
   package.json
 package.json
