@@ -9,7 +9,7 @@ function Footer({ onAnalyzeClick }) {
             <span className="brand-mark" aria-hidden="true">0<span>→</span></span>
             <span className="brand-copy"><strong>0 to Shipped</strong><small>RESUME PARSER</small></span>
           </a>
-          <p>Save a resume and job description for future comparison.</p>
+          <p>Compare resume skills with a job description using AI.</p>
         </div>
         <div className="footer-links">
           <a href="#how-it-works">How It Works</a>

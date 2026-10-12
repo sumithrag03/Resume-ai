@@ -23,7 +23,7 @@ function JobDescriptionInput({ value, disabled, onChange }) {
         <div>
           <span className="eyebrow">COMPARISON INPUT</span>
           <h2 id="job-description-title">Compare Your Resume With a Job Description</h2>
-          <p>Your job description will be stored with the resume for future AI-powered comparison.</p>
+          <p>We compare its required skills with the text extracted from your PDF.</p>
         </div>
       </div>
 

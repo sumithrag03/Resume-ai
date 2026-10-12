@@ -52,12 +52,12 @@ function App() {
 
       let response;
       try {
-        response = await fetch(`${API_BASE_URL}/api/analyses`, {
+        response = await fetch(`${API_BASE_URL}/api/analyze`, {
           method: 'POST',
           body: formData,
         });
       } catch {
-        throw new Error('Unable to reach the backend. Start the Express server and confirm MongoDB is connected.');
+        throw new Error('Unable to reach the backend. Check that the server is running and CORS allows this frontend.');
       }
 
       let payload;
@@ -68,10 +68,18 @@ function App() {
       }
 
       if (!response.ok) {
-        throw new Error(payload.error || 'The server could not save this comparison.');
+        throw new Error(payload.error || 'Resume analysis failed. Please try again.');
       }
 
-      if (!payload.analysis?.id || payload.analysis.status !== 'pending') {
+      if (
+        !Number.isInteger(payload.analysis?.score)
+        || typeof payload.analysis?.scoreFormula !== 'string'
+        || !Array.isArray(payload.analysis?.skillsFoundInResume)
+        || !Array.isArray(payload.analysis?.skillsRequiredByJob)
+        || !Array.isArray(payload.analysis?.matchingSkills)
+        || !Array.isArray(payload.analysis?.missingSkills)
+        || !Array.isArray(payload.analysis?.recommendations)
+      ) {
         throw new Error('The server returned an unexpected response. Please try again.');
       }
 
@@ -79,7 +87,7 @@ function App() {
     } catch (requestError) {
       setError(requestError instanceof Error
         ? requestError.message
-        : 'Could not reach the server. Check that the backend is running and try again.');
+        : 'Could not analyze the resume. Check the backend configuration and try again.');
     } finally {
       setIsAnalyzing(false);
     }
@@ -100,7 +108,7 @@ function App() {
           <div className="section-heading">
             <span className="eyebrow">START WITH A PDF</span>
             <h2>A clearer picture starts here.</h2>
-            <p>When submitted, your PDF and job description are saved to MongoDB. AI comparison will be added later.</p>
+            <p>Get an AI-powered comparison of resume skills and job requirements. Your PDF is processed in memory and is not saved by this analysis flow.</p>
           </div>
           <ResumeUploader
             file={selectedFile}

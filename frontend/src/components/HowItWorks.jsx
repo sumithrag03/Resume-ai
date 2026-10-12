@@ -15,8 +15,8 @@ const steps = [
   },
   {
     number: '03',
-    title: 'Save Your Request',
-    description: 'The PDF and job description are stored for future AI processing.',
+    title: 'Review Your Match',
+    description: 'See matching skills, missing requirements, and tailored recommendations.',
     icon: Lightbulb,
   },
 ];

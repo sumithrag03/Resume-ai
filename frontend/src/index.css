@@ -343,6 +343,8 @@ h1, h2, h3 { font-family: Manrope, sans-serif; }
 .found-tag { background: #edf7f2; color: #347d5b; }
 .improve-tag { background: #fff4e5; color: #966326; }
 .comparison-skills-grid { grid-template-rows: 1fr 1fr; }
+.analysis-skills-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 17px; margin-top: 17px; }
+.score-footnote { max-width: calc(100% - 20px); justify-content: center; text-align: center; line-height: 1.35; }
 .empty-skill-list { margin: 10px 0 0 !important; }
 .job-summary { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 18px; margin-top: 17px; padding: 19px 21px; border: 1px solid #e9ecf2; border-radius: 16px; background: #fff; box-shadow: 0 6px 23px rgba(36, 51, 88, 0.04); }
 .job-summary-heading { display: flex; align-items: center; gap: 11px; }
@@ -448,6 +450,7 @@ h1, h2, h3 { font-family: Manrope, sans-serif; }
   .result-detail-grid { grid-template-columns: 1fr; gap: 12px; }
   .score-card { min-height: 230px; }
   .skills-grid { grid-template-rows: auto auto; gap: 12px; }
+  .analysis-skills-grid { grid-template-columns: 1fr; gap: 12px; }
   .content-card { padding: 16px; }
   .job-summary { grid-template-columns: 1fr; gap: 14px; padding: 16px; }
   .job-summary-stats { justify-content: space-between; gap: 8px; }

@@ -7,13 +7,13 @@ function Hero({ onAnalyzeClick }) {
         <span className="eyebrow hero-eyebrow"><Sparkles size={14} /> YOUR RESUME, SIMPLIFIED</span>
         <h1>Turn your resume into your <span>next opportunity.</span></h1>
         <p className="hero-description">
-          Submit your resume and a job description now. AI-powered comparison is coming soon.
+          See how your resume's skills align with a job description, with practical recommendations to strengthen your application.
         </p>
         <div className="hero-actions">
           <button className="button button-primary button-large" type="button" onClick={onAnalyzeClick}>
             Prepare My Comparison <ArrowUpRight size={18} aria-hidden="true" />
           </button>
-          <span className="privacy-note"><Check size={15} /> Your PDF and job description are saved in MongoDB.</span>
+          <span className="privacy-note"><Check size={15} /> Your PDF is analyzed in memory and is not saved.</span>
         </div>
       </div>
       <div className="hero-art" aria-label="Illustration of a resume preview and example skills">

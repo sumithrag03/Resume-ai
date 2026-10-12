@@ -7,6 +7,5 @@ export function saveAnalysis(resume, jobDescription) {
     resumeFileName: sanitizeFileName(resume.originalname),
     resumeContentType: 'application/pdf',
     resumeSize: resume.size,
-    resumeData: resume.buffer,
   });
 }

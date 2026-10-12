@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { AlertCircle, ArrowUpRight, CheckCircle2, FileText, FileUp, LoaderCircle, X } from 'lucide-react';
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024;
+const MAX_FILE_SIZE = 4 * 1024 * 1024;
 
 function formatFileSize(size) {
   if (size < 1024) return `${size} B`;
@@ -22,7 +22,7 @@ function ResumeUploader({ file, error, isAnalyzing, canAnalyze, hasJobDescriptio
       return;
     }
     if (candidate.size > MAX_FILE_SIZE) {
-      onError('This file is larger than 10 MB. Choose a smaller PDF to continue.');
+      onError('This file is larger than 4 MB. Choose a smaller PDF to continue.');
       return;
     }
 
@@ -85,7 +85,7 @@ function ResumeUploader({ file, error, isAnalyzing, canAnalyze, hasJobDescriptio
             <button className="button button-outline choose-button" type="button" onClick={() => inputRef.current?.click()}>
               Choose PDF
             </button>
-            <span className="file-requirements">PDF only <span>·</span> Max file size 10 MB</span>
+            <span className="file-requirements">PDF only <span>·</span> Max file size 4 MB</span>
           </>
         )}
         {file && (
@@ -106,18 +106,18 @@ function ResumeUploader({ file, error, isAnalyzing, canAnalyze, hasJobDescriptio
           onClick={onAnalyze}
         >
           {isAnalyzing ? (
-            <><LoaderCircle className="spin" size={18} /> Saving your request...</>
+            <><LoaderCircle className="spin" size={18} /> Analyzing your resume...</>
           ) : (
-            <>Save Comparison Request <ArrowUpRight size={18} aria-hidden="true" /></>
+            <>Analyze My Resume <ArrowUpRight size={18} aria-hidden="true" /></>
           )}
         </button>
         {!canAnalyze && (
           <ul className="analysis-requirements" aria-live="polite">
-            {!file && <li>A valid PDF resume under 10 MB is required.</li>}
+            {!file && <li>A valid PDF resume under 4 MB is required.</li>}
             {!hasJobDescription && <li>Paste a job description to continue.</li>}
           </ul>
         )}
-        <p className="demo-notice">Your PDF and job description will be stored in MongoDB. No AI analysis runs yet.</p>
+        <p className="demo-notice">Your PDF is processed for this request and is not saved by the analysis service.</p>
       </div>
     </div>
   );

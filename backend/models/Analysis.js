@@ -26,10 +26,6 @@ const analysisSchema = new mongoose.Schema(
       min: 1,
       max: MAX_FILE_SIZE,
     },
-    resumeData: {
-      type: Buffer,
-      required: true,
-    },
     status: {
       type: String,
       enum: ['pending'],
